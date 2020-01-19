@@ -1,4 +1,4 @@
-
+# coding=utf-8
 """
 First, a few callback functions are defined. Then, those functions are passed to
 the Dispatcher and registered at their respective places.
@@ -81,26 +81,28 @@ def main_menu(update, context):
                           text=main_menu_message(),
                           reply_markup=main_menu_keyboard())
 
-def program_menu(update, context):
-    query = update.callback_query
-    bot = context.bot
-    bot.edit_message_text(chat_id=query.message.chat_id,
-                          message_id=query.message.message_id,
-                          text=program_menu_message(),
-                          reply_markup=program_menu_keyboard())
-
+#def program_menu(update, context):
+#    query = update.callback_query
+#    bot = context.bot
+#    bot.edit_message_text(chat_id=query.message.chat_id,
+#                          message_id=query.message.message_id,
+#                          text=program_menu_message(),
+#                          reply_markup=program_menu_keyboard())
+#
 def programa_fisic(update, context):
     query = update.callback_query
     bot = context.bot
-    bot.send_photo(chat_id=query.message.chat_id,
-                   photo=open('./backend/files/dummy.pdf', 'rb'))
+    bot.send_document(chat_id=query.message.chat_id,
+                      document=open('./backend/files/dummy.pdf', 'rb'))
+    menu(update, context)
 
 def programa_online(update, context):
-    query = update.callback_query
-    update.message.reply_text(chat_id=query.message.chat_id,
-                              text="Tecleja /programa [dia] [hora] per veure la programació "
-                              "del dia a partir de l'hora indicada\n"
-                              "Exemple: /programa dissabte 17")
+    query= update.callback_query
+    bot = context.bot
+    bot.send_message(chat_id=query.message.chat_id,
+                     text="Tecleja /programa [dia] [hora] per veure la programació "
+                          "del dia a partir de l'hora indicada\n"
+                          "Exemple: /programa dissabte 17")
 
 def cartell_menu(update, context):
     query = update.callback_query
@@ -108,7 +110,7 @@ def cartell_menu(update, context):
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                             text="Enviant cartell...")
     bot.send_photo(chat_id=query.message.chat_id,
-                   photo=open('./backend/files/cartell.jpg', 'rb'))
+                   photo=open('./backend/files/dummy.jpg', 'rb'))
     menu(update, context)
 
 def video_menu(update, context):
@@ -127,23 +129,14 @@ def link_menu(update, context):
 def main_menu_message():
     return 'Que vols consultar?'
 
-def program_menu_message():
-    return 'Descarrega el programa en format .pdf o consulta per hora '\
-            'i dia les activitats del Carnaval'
-
 # Keyboards
 def main_menu_keyboard():
-    main_menu = [[InlineKeyboardButton('Programa', callback_data='program'),
-                  InlineKeyboardButton('Cartell', callback_data='cartell')],
+    main_menu = [[InlineKeyboardButton('Cartell', callback_data='cartell'),
+                  InlineKeyboardButton('Programa Físic', callback_data='programa_f')],
                  [InlineKeyboardButton('Video', callback_data='video'),
-                  InlineKeyboardButton('Inscripcions', callback_data='link')]]
+                  InlineKeyboardButton('Programa Online', callback_data='programa_o')],
+                 [InlineKeyboardButton('Inscripcions', callback_data='link')]]
     return InlineKeyboardMarkup(main_menu, one_time_keyboard=True)
-
-def program_menu_keyboard():
-    program_menu = [[InlineKeyboardButton('Programa físic', callback_data='programa_f'),
-                     InlineKeyboardButton('Programa on-line', callback_data='programa_o')],
-                    [InlineKeyboardButton('Endarrere', callback_data='main_menu')]]
-    return InlineKeyboardMarkup(program_menu)
 
 def back_menu_keyboard():
     back_menu = [[InlineKeyboardButton('Endarrere', callback_data='main_menu')]]
@@ -172,7 +165,7 @@ def main(args):
     inici_handler = CommandHandler('menu', menu)
     dp.add_handler(inici_handler)
     dp.add_handler(CallbackQueryHandler(main_menu, pattern='main_menu'))
-    dp.add_handler(CallbackQueryHandler(program_menu, pattern='program'))
+    #dp.add_handler(CallbackQueryHandler(program_menu, pattern='program'))
     dp.add_handler(CallbackQueryHandler(programa_fisic, pattern='programa_f'))
     dp.add_handler(CallbackQueryHandler(programa_online, pattern='programa_o'))
     dp.add_handler(CallbackQueryHandler(cartell_menu, pattern='cartell'))
