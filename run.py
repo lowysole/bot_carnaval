@@ -81,17 +81,16 @@ def main_menu(update, context):
                           text=main_menu_message(),
                           reply_markup=main_menu_keyboard())
 
-#def program_menu(update, context):
-#    query = update.callback_query
-#    bot = context.bot
-#    bot.edit_message_text(chat_id=query.message.chat_id,
-#                          message_id=query.message.message_id,
-#                          text=program_menu_message(),
-#                          reply_markup=program_menu_keyboard())
-#
+def program(update, context):
+    query = update.callback_query
+    bot = context.bot
+    # TODO Complete
+
 def programa_fisic(update, context):
     query = update.callback_query
     bot = context.bot
+    bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
+                            text="Enviant Programa...")
     bot.send_document(chat_id=query.message.chat_id,
                       document=open('./backend/files/dummy.pdf', 'rb'))
     menu(update, context)
@@ -102,7 +101,9 @@ def programa_online(update, context):
     bot.send_message(chat_id=query.message.chat_id,
                      text="Tecleja /programa [dia] [hora] per veure la programació "
                           "del dia a partir de l'hora indicada\n"
-                          "Exemple: /programa dissabte 17")
+                          "Exemple: /programa dissabte 17\n\n"
+                          "*En construcció*",
+                     parse_mode='Markdown')
 
 def cartell_menu(update, context):
     query = update.callback_query
@@ -123,7 +124,14 @@ def video_menu(update, context):
     menu(update, context)
 
 def link_menu(update, context):
-    pass
+    query = update.callback_query
+    bot = context.bot
+    bot.send_message(chat_id=query.message.chat_id,
+                     text="*Links a formularis i coses d'aquestes*\n"
+                          "Inscripcions comparses:\n"
+                          "Inscripcions sopar:\n",
+                     parse_mode='Markdown')
+    menu(update, context)
 
 # Messages
 def main_menu_message():
@@ -154,37 +162,40 @@ def main(args):
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Start
+    # Start Handler
     start_handler = CommandHandler('start', start)
     dp.add_handler(start_handler)
 
     inici_handler = CommandHandler('inici', inici)
     dp.add_handler(inici_handler)
 
-    # Start Menu
+    # Menu Handler
     inici_handler = CommandHandler('menu', menu)
     dp.add_handler(inici_handler)
     dp.add_handler(CallbackQueryHandler(main_menu, pattern='main_menu'))
-    #dp.add_handler(CallbackQueryHandler(program_menu, pattern='program'))
     dp.add_handler(CallbackQueryHandler(programa_fisic, pattern='programa_f'))
     dp.add_handler(CallbackQueryHandler(programa_online, pattern='programa_o'))
     dp.add_handler(CallbackQueryHandler(cartell_menu, pattern='cartell'))
     dp.add_handler(CallbackQueryHandler(video_menu, pattern='video'))
     dp.add_handler(CallbackQueryHandler(link_menu, pattern='link'))
 
+    # Program Handler
+    program_handler = CommandHandler('program', program)
+    dp.add_handler(program_handler)
 
     # Finish
     finish_handler = CommandHandler('tancar', tancar)
     dp.add_handler(finish_handler)
+
     # Incorrect command
     unknown_handler = MessageHandler(Filters.command, unknown)
     dp.add_handler(unknown_handler)
+
     # log all errors
     dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
-
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
@@ -195,7 +206,5 @@ if __name__ == '__main__':
     parser= argparse.ArgumentParser()
     parser.add_argument('--dev-bot', dest='dev_bot', action='store_true',
                         help='Execute dev BOT')
-    parser.add_argument('--dev-message', dest='dev_msg', action='store_true',
-                        help='Execute dev message')
     args = parser.parse_args()
     main(args)
