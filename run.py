@@ -111,7 +111,7 @@ def cartell_menu(update, context):
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                             text="Enviant cartell...")
     bot.send_photo(chat_id=query.message.chat_id,
-                   photo=open('./backend/files/dummy.jpg', 'rb'))
+                   photo=open('./backend/files/cartell.jpeg', 'rb'))
     menu(update, context)
 
 def video_menu(update, context):
@@ -127,9 +127,24 @@ def link_menu(update, context):
     query = update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="*Links a formularis i coses d'aquestes*\n"
-                          "Inscripcions comparses:\n"
-                          "Inscripcions sopar:\n",
+                     text="*INSCRIPCIONS*\n"
+                          "*Inscripcions del carnestoltes* (a partir del 2 de Febrer)\n"
+                          "www.carnestoltestarrega.cat\n"
+                          "*Inscripcions al sopar* (a partir del 3 de Febrer)\n"
+                          "https://www.agratickets.cat/",
+                     parse_mode='Markdown')
+    menu(update, context)
+
+def xarxes_menu(update, context):
+    query = update.callback_query
+    bot = context.bot
+    bot.send_message(chat_id=query.message.chat_id,
+                     text="*INSTAGRAM*\n"
+                          "https://www.instagram.com/carnavaltarrega/\n"
+                          "*FACEBOOK*\n"
+                          "https://www.facebook.com/CarnestoltesTarrega/\n"
+                          "*WEB*\n"
+                          "www.carnestoltestarrega.cat\n",
                      parse_mode='Markdown')
     menu(update, context)
 
@@ -143,7 +158,8 @@ def main_menu_keyboard():
                   InlineKeyboardButton('Programa Físic', callback_data='programa_f')],
                  [InlineKeyboardButton('Video', callback_data='video'),
                   InlineKeyboardButton('Programa Online', callback_data='programa_o')],
-                 [InlineKeyboardButton('Inscripcions', callback_data='link')]]
+                 [InlineKeyboardButton('Inscripcions', callback_data='link'),
+                  InlineKeyboardButton('Xarxes Socials', callback_data='xarxes')]]
     return InlineKeyboardMarkup(main_menu, one_time_keyboard=True)
 
 def back_menu_keyboard():
@@ -178,6 +194,7 @@ def main(args):
     dp.add_handler(CallbackQueryHandler(cartell_menu, pattern='cartell'))
     dp.add_handler(CallbackQueryHandler(video_menu, pattern='video'))
     dp.add_handler(CallbackQueryHandler(link_menu, pattern='link'))
+    dp.add_handler(CallbackQueryHandler(xarxes_menu, pattern='xarxes'))
 
     # Program Handler
     program_handler = CommandHandler('program', program)
