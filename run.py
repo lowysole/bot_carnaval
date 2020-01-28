@@ -21,6 +21,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
 
 from backend import settings
 from backend import menus as m
+from backend import emojis as emoji
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,11 +34,12 @@ def inici(update, context):
     user = update.message.chat.username
     logger.info("User {} entering to the BOT".format(user))
     update.message.reply_text(
-        'Benvinguts al BOT de Carnaval!\n'
+        '{} Benvinguts al BOT de Sa Majestat, Reina del Carnestoltes de Tàrrega! {} \n\n'
         'Aquest BOT et donarà tota la informació necessària per estar '
-        'informat de tot el que passa a Tàrrega.\n'
-        'Tecleja /menu per accedir al menú sempre que vulguis\n'
-        'Envia /tancar per parar de parlar amb mi.\n\n')
+        'informat de tot el que passa a Tàrrega.\n\n'
+        '{} Tecleja /menu per accedir al menú sempre que vulguis\n'
+        '{} Envia /tancar per parar de parlar amb mi.\n\n'.format(
+        emoji.festa, emoji.festa, emoji.carpeta, emoji.creu))
     menu(update, context)
 
 def start(update, context):
@@ -68,9 +70,10 @@ def error(update, context):
 def unknown(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Ho sento, no t'he entès.\n"
-        "Tecleja /menu per accedir al menú sempre que vulguis\n"
-        "Envia /tancar per parar de parlar amb mi.\n\n")
+        text="{} Ho sento, no t'he entès.\n\n"
+        "{} Tecleja /menu per accedir al menú sempre que vulguis\n"
+        "{} Envia /tancar per parar de parlar amb mi.\n\n".format(
+        emoji.think, emoji.carpeta, emoji.creu))
 
 # Menus
 def main_menu(update, context):
@@ -99,10 +102,11 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="Tecleja /programa [dia] [hora] per veure la programació "
-                          "del dia a partir de l'hora indicada\n"
-                          "Exemple: /programa dissabte 17\n\n"
-                          "*En construcció*",
+                     text="{} Tecleja /programa [dia] [hora] per veure la programació "
+                          "del dia a partir de l'hora indicada\n\n"
+                          "{} Exemple: /programa dissabte 17\n\n"
+                          "*En construcció*".format(
+                          emoji.date, emoji.ubi),
                      parse_mode='Markdown')
 
 def cartell_menu(update, context):
@@ -127,11 +131,12 @@ def link_menu(update, context):
     query = update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="*INSCRIPCIONS*\n"
-                          "*Inscripcions del carnestoltes* (a partir del 2 de Febrer)\n"
-                          "www.carnestoltestarrega.cat\n"
-                          "*Inscripcions al sopar* (a partir del 3 de Febrer)\n"
-                          "https://www.agratickets.cat/",
+                     text="{} *INSCRIPCIONS*\n\n"
+                          "{} *Inscripcions del carnestoltes* (a partir del 2 de Febrer)\n"
+                          "www.carnestoltestarrega.cat.\n"
+                          "{} *Inscripcions al sopar* (a partir del 3 de Febrer)\n"
+                          "https://www.agratickets.cat/".format(
+                              emoji.date, emoji.info, emoji.sopar),
                      parse_mode='Markdown')
     menu(update, context)
 
@@ -139,18 +144,19 @@ def xarxes_menu(update, context):
     query = update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="*INSTAGRAM*\n"
-                          "https://www.instagram.com/carnavaltarrega/\n"
-                          "*FACEBOOK*\n"
-                          "https://www.facebook.com/CarnestoltesTarrega/\n"
-                          "*WEB*\n"
-                          "www.carnestoltestarrega.cat\n",
+                     text="{} *INSTAGRAM*\n"
+                          "https://www.instagram.com/carnavaltarrega\n\n"
+                          "{} *FACEBOOK*\n"
+                          "https://www.facebook.com/CarnestoltesTarrega\n\n"
+                          "{} *WEB*\n"
+                          "www.carnestoltestarrega.cat\n\n".format(
+                              emoji.camera, emoji.book, emoji.web),
                      parse_mode='Markdown')
     menu(update, context)
 
 # Messages
 def main_menu_message():
-    return 'Que vols consultar?'
+    return '{} Que vols consultar?'.format(emoji.lupa)
 
 # Keyboards
 def main_menu_keyboard():
