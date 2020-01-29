@@ -114,10 +114,9 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="{} Tecleja /programa [dia] [hora] per veure la programació "
-                          "del dia a partir de l'hora indicada\n\n"
-                          "{} Exemple: /programa dissabte 17\n\n"
-                          "*En construcció*".format(
+                     text="{} Tecleja /programa <dia> <hora> per veure els pròxims "
+                          "esdeveniments del dia a partir de l'hora indicada.\n\n"
+                          "{} Exemple: /programa dissabte 17\n\n".format(
                           emoji.date, emoji.ubi),
                      parse_mode='Markdown')
 
@@ -127,7 +126,7 @@ def cartell_menu(update, context):
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                             text="Enviant cartell...")
     bot.send_photo(chat_id=query.message.chat_id,
-                   photo=open('./backend/files/cartell.jpeg', 'rb'))
+                   photo=open('./backend/files/cartell.jpg', 'rb'))
     menu(update, context)
 
 def video_menu(update, context):
