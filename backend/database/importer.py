@@ -1,11 +1,12 @@
 from csv import DictReader
 from backend.database.db_base import DBBase
 
-PROGRAM = """CREATE TABLE IF NO EXISTS program (
+PROGRAM = """CREATE TABLE IF NOT EXISTS program (
         id text,
         title text,
         day text,
-        hour int,
+        hour float,
+        place text,
         description text
         );"""
 
@@ -17,7 +18,7 @@ class Importer(DBBase):
 
     def import_program(self, p_file):
         with open(p_file, 'rt') as fin:
-            reader = csv.DictReader(fin)
+            reader = DictReader(fin)
             for row in reader:
                 self._create_program(row)
             self.conn.commit()
@@ -29,6 +30,7 @@ class Importer(DBBase):
             row.get('title'),
             row.get('day'),
             row.get('hour'),
+            row.get('place'),
             row.get('description')
         )
         sql = """ INSERT INTO program (
@@ -36,13 +38,14 @@ class Importer(DBBase):
                 title,
                 day,
                 hour,
+                place,
                 description)
-                VALUES (?,?,?,?,?);
+                VALUES (?,?,?,?,?,?);
                 """.replace("\n", "")
         cur = self.conn.cursor()
         cur.execute(sql, row_table)
 
-    def _create_tables():
+    def _create_tables(self):
         self._execute_sql(PROGRAM)
         self._create_index("program", "id")
         self.conn.commit()

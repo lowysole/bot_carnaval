@@ -7,7 +7,7 @@ from backend import settings
 if __name__ == '__main__':
     parser= argparse.ArgumentParser()
     parser.add_argument('input_file',
-                        help='Format: id,title,day,hour,description')
+                        help='Format: id,title,day,hour,place,description')
     args = parser.parse_args()
     input_file = args.input_file
 

@@ -22,6 +22,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
 from backend import settings
 from backend import menus as m
 from backend import emojis as emoji
+from backend.database import query as q
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -58,8 +59,9 @@ def menu(update, context):
 def tancar(update, context):
     user = update.message.chat.username
     logger.info("User %s canceled the conversation.", user)
-    update.message.reply_text('Adeu! Si vols tornar a parlar amb mi, tecleja /inici',
-                              reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text(
+        '{} Adeu! Si vols tornar a parlar amb mi, tecleja /inici'.format(
+            emoji.adeu), reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
 
@@ -87,7 +89,17 @@ def main_menu(update, context):
 def program(update, context):
     query = update.callback_query
     bot = context.bot
-    # TODO Complete
+    db = q.Query(settings.DB_FILE)
+    text = ''
+    for row in db.process_query(context.args):
+        template= "*{}*\n" \
+            "{} {} | {}\n" \
+            "{} _{}_\n\n".format(
+                row[0], emoji.date, row[1].capitalize(), row[2], emoji.ubi, row[3])
+        text = text + template
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=text,
+                     parse_mode='Markdown')
 
 def programa_fisic(update, context):
     query = update.callback_query
@@ -174,14 +186,10 @@ def back_menu_keyboard():
 
 def main(args):
     token = settings.DEV_TOKEN if args.dev_bot else settings.TOKEN
-    # Create the Updater and pass it your bot's token.
-    # Make sure to set use_context=True to use the new context based callbacks
-    # Post version 12 this will no longer be necessary
+
+    # Initialize bot
     bot = Bot(token)
-
     updater = Updater(token, use_context=True)
-
-    # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # Start Handler
@@ -203,7 +211,7 @@ def main(args):
     dp.add_handler(CallbackQueryHandler(xarxes_menu, pattern='xarxes'))
 
     # Program Handler
-    program_handler = CommandHandler('program', program)
+    program_handler = CommandHandler('programa', program)
     dp.add_handler(program_handler)
 
     # Finish
