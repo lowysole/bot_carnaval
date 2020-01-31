@@ -14,9 +14,10 @@ import logging
 import argparse
 
 
-from telegram import Bot, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import (Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup,
+                      InlineKeyboardButton)
 
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Handler, Filters,
                           ConversationHandler, CallbackQueryHandler)
 
 from backend import settings
@@ -30,6 +31,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+PROGRAM_DAY = ''
 
 def inici(update, context):
     user = update.message.chat.username
@@ -86,20 +88,6 @@ def main_menu(update, context):
                           text=main_menu_message(),
                           reply_markup=main_menu_keyboard())
 
-def program(update, context):
-    query = update.callback_query
-    bot = context.bot
-    db = q.Query(settings.DB_FILE)
-    text = ''
-    for row in db.process_query(context.args):
-        template= "*{}*\n" \
-            "{} {} | {}\n" \
-            "{} _{}_\n\n".format(
-                row[0], emoji.date, row[1].capitalize(), row[2], emoji.ubi, row[3])
-        text = text + template
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=text,
-                     parse_mode='Markdown')
 
 def programa_fisic(update, context):
     query = update.callback_query
@@ -114,11 +102,52 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="{} Tecleja /programa <dia> <hora> per veure els pròxims "
-                          "esdeveniments del dia a partir de l'hora indicada.\n\n"
-                          "{} Exemple: /programa dissabte 17\n\n".format(
-                          emoji.date, emoji.ubi),
+                     text="{} Tecleja /programa per consultar per dia i hora els "
+                          "esdeveniments d'aquest Carnestoltes.\n\n".format(
+                          emoji.date))
+
+def program_day(update, context):
+    reply_keyboard = [['Dijous 20', 'Divendres 21'], ['Dissabte 22', 'Diumenge 23']]
+    update.message.reply_text(
+        '{} Quin dia de la setmana vols consultar?'.format(emoji.lupa),
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+    return 0
+
+def program_hour(update,context):
+    global PROGRAM_DAY
+    PROGRAM_DAY = update.message.text
+    user = update.message.from_user
+    update.message.reply_text("Escriu l'hora que vols consultar\n"
+                              "Exemple: 17 (5 de la tarda)",
+                              reply_markup=ReplyKeyboardRemove())
+    return 1
+
+def program_query(update, context):
+    query = update.callback_query
+    bot = context.bot
+    db = q.Query(settings.DB_FILE)
+    args = []
+    global PROGRAM_DAY
+    args.append(PROGRAM_DAY)
+    args.append(update.message.text)
+    text = ''
+    for row in db.process_query(args):
+        template= "*{}*\n" \
+            "{} {} | {}\n" \
+            "{} _{}_\n\n".format(
+                row[0], emoji.date, row[1], row[2], emoji.ubi, row[3])
+        text = text + template
+    if text == '':
+        text = "{} No s'ha trobat cap esdeveniment amb aquest horari.".format(emoji.creu)
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=text,
                      parse_mode='Markdown')
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text='{} tecleja /programa per tornar a consultar un esdeveniment\n'
+                     '{} tecleja /menu per accedir al menú'.format(
+                     emoji.carpeta, emoji.date))
+    return ConversationHandler.END
 
 def cartell_menu(update, context):
     query = update.callback_query
@@ -210,7 +239,14 @@ def main(args):
     dp.add_handler(CallbackQueryHandler(xarxes_menu, pattern='xarxes'))
 
     # Program Handler
-    program_handler = CommandHandler('programa', program)
+    program_handler = ConversationHandler(
+        entry_points=[CommandHandler('programa', program_day)],
+        states={
+            0: [MessageHandler(Filters.text, program_hour)],
+            1: [MessageHandler(Filters.text, program_query)],
+        },
+        fallbacks=[CommandHandler('menu', menu)]
+    )
     dp.add_handler(program_handler)
 
     # Finish
