@@ -31,7 +31,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-PROGRAM_DAY = ''
 
 def inici(update, context):
     user = update.message.chat.username
@@ -114,12 +113,13 @@ def program_day(update, context):
     return 0
 
 def program_hour(update,context):
-    global PROGRAM_DAY
-    PROGRAM_DAY = update.message.text
-    user = update.message.from_user
+    db = q.Query(settings.DB_FILE)
+    db.add_tmp_day(update.message.chat_id,
+                   update.message.text)
     update.message.reply_text("Escriu l'hora que vols consultar\n"
                               "Exemple: 17 (5 de la tarda)",
                               reply_markup=ReplyKeyboardRemove())
+    db.close()
     return 1
 
 def program_query(update, context):
@@ -127,8 +127,8 @@ def program_query(update, context):
     bot = context.bot
     db = q.Query(settings.DB_FILE)
     args = []
-    global PROGRAM_DAY
-    args.append(PROGRAM_DAY)
+    day = db.get_tmp_day(update.message.chat_id)[0][0]
+    args.append(day)
     args.append(update.message.text)
     text = ''
     for row in db.process_query(args):
@@ -147,6 +147,7 @@ def program_query(update, context):
                      text='{} Tecleja /programa per tornar a consultar un esdeveniment\n'
                      '{} Tecleja /menu per accedir al menú'.format(
                      emoji.carpeta, emoji.date))
+    db.close()
     return ConversationHandler.END
 
 def cartell_menu(update, context):

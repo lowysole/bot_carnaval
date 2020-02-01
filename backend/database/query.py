@@ -1,11 +1,17 @@
 from backend.database.db_base import DBBase
+from backend.database import importer
 from backend import settings
 
+DAY_TMP = """CREATE TABLE IF NOT EXISTS day_tmp(
+        chat_id int,
+        day text
+        );"""
 
 class Query(DBBase):
 
     def __init__(self, db_file):
         super(Query, self).__init__(db_file)
+        self._create_tables()
 
     def process_query(self, args):
         try:
@@ -23,6 +29,16 @@ class Query(DBBase):
             return data_list
         except:
             return []
+
+    def add_tmp_day(self, chat_id, day):
+        self._add_tmp_day(chat_id, day)
+        self.conn.commit()
+
+    def get_tmp_day(self, chat_id):
+        day = self._get_tmp_day(chat_id)
+        self._remove_tmp_day(chat_id)
+        self.conn.commit()
+        return day
 
     def _extract_info(self, day, hour):
         query = """
@@ -49,3 +65,33 @@ class Query(DBBase):
             return 'Dissabte 22'
         elif day == 'diumenge':
             return 'Diumenge 23'
+
+    def _add_tmp_day(self, chat_id, day):
+        query = """
+            INSERT INTO day_tmp
+            (chat_id, day)
+            VALUES (?,?)
+            """
+        data = [chat_id, day]
+        cur = self.conn.cursor()
+        cur.execute(query, data)
+
+    def _get_tmp_day(self, chat_id):
+        query = """
+            SELECT day from day_tmp
+            WHERE chat_id = ?
+            """
+        cur = self.conn.cursor()
+        return self._get_sql(query, data=[chat_id])
+
+    def _remove_tmp_day(self, chat_id):
+        query = """
+            DELETE FROM day_tmp
+            WHERE chat_id = ?
+            """
+        cur = self.conn.cursor()
+        cur.execute(query, [chat_id])
+
+    def _create_tables(self):
+        self._execute_sql(DAY_TMP)
+        self.conn.commit()
