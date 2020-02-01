@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.DS_Store
+# C extensions
+*.so
+
+# Files, DB, configs
+backend/settings.py
+backend/files/
+backend/database/sqlite_program.sqlite3
+
