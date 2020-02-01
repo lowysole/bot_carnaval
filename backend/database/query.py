@@ -8,18 +8,21 @@ class Query(DBBase):
         super(Query, self).__init__(db_file)
 
     def process_query(self, args):
-        day = args[0].lower().split( )[0]
-        hour = float(args[1])
-        data = self._extract_info(day, hour)
-        data_list = [list(i) for i in data]
-        for row in data_list:
-            row[1] = self._get_day_num(row[1])
-            hour = str(row[2]).replace('.', ':', 1)
-            if len(hour) == 5:
-                row[2] = hour + ' h'
-            else:
-                row[2] = hour + '0 h'
-        return data_list
+        try:
+            day = args[0].lower().split( )[0]
+            hour = float(args[1])
+            data = self._extract_info(day, hour)
+            data_list = [list(i) for i in data]
+            for row in data_list:
+                row[1] = self._get_day_num(row[1])
+                hour = str(row[2]).replace('.', ':', 1)
+                if len(hour) == 5:
+                    row[2] = hour + ' h'
+                else:
+                    row[2] = hour + '0 h'
+            return data_list
+        except:
+            return []
 
     def _extract_info(self, day, hour):
         query = """

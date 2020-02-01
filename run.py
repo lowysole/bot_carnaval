@@ -103,7 +103,7 @@ def programa_online(update, context):
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
                      text="{} Tecleja /programa per consultar per dia i hora els "
-                          "esdeveniments d'aquest Carnestoltes.\n\n".format(
+                          "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
                           emoji.date))
 
 def program_day(update, context):
@@ -144,8 +144,8 @@ def program_query(update, context):
                      parse_mode='Markdown')
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text='{} tecleja /programa per tornar a consultar un esdeveniment\n'
-                     '{} tecleja /menu per accedir al menú'.format(
+                     text='{} Tecleja /programa per tornar a consultar un esdeveniment\n'
+                     '{} Tecleja /menu per accedir al menú'.format(
                      emoji.carpeta, emoji.date))
     return ConversationHandler.END
 
