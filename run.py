@@ -20,7 +20,7 @@ from telegram import (Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeybo
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Handler, Filters,
                           ConversationHandler, CallbackQueryHandler)
 
-from backend import settings
+from backend import settings, easter
 from backend import menus as m
 from backend import emojis as emoji
 from backend.database import query as q
@@ -31,7 +31,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-PROGRAM_DAY = ''
 
 def inici(update, context):
     user = update.message.chat.username
@@ -71,13 +70,25 @@ def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
-def unknown(update, context):
+def unknown_command(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="{} Ho sento, no t'he entès.\n\n"
         "{} Tecleja /menu per accedir al menú sempre que vulguis\n"
         "{} Envia /tancar per parar de parlar amb mi.\n\n".format(
         emoji.think, emoji.carpeta, emoji.creu))
+
+def chat_message(update, context):
+    text = update.message.text.lower()
+    bot = context.bot
+    answer_text = easter.message_answer(text)
+    if answer_text[0] == 'text':
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=answer_text[1])
+    if answer_text[0] == 'photo':
+        bot.send_photo(chat_id=update.message.chat_id,
+                       photo=open(answer_text[1], 'rb'),
+                       caption=answer_text[2])
 
 # Menus
 def main_menu(update, context):
@@ -95,7 +106,7 @@ def programa_fisic(update, context):
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                             text="Enviant Programa...")
     bot.send_document(chat_id=query.message.chat_id,
-                      document=open('./backend/files/dummy.pdf', 'rb'))
+                      document=open('./backend/files/programa.pdf', 'rb'))
     menu(update, context)
 
 def programa_online(update, context):
@@ -103,7 +114,7 @@ def programa_online(update, context):
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
                      text="{} Tecleja /programa per consultar per dia i hora els "
-                          "esdeveniments d'aquest Carnestoltes.\n\n".format(
+                          "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
                           emoji.date))
 
 def program_day(update, context):
@@ -114,12 +125,13 @@ def program_day(update, context):
     return 0
 
 def program_hour(update,context):
-    global PROGRAM_DAY
-    PROGRAM_DAY = update.message.text
-    user = update.message.from_user
+    db = q.Query(settings.DB_FILE)
+    db.add_tmp_day(update.message.chat_id,
+                   update.message.text)
     update.message.reply_text("Escriu l'hora que vols consultar\n"
                               "Exemple: 17 (5 de la tarda)",
                               reply_markup=ReplyKeyboardRemove())
+    db.close()
     return 1
 
 def program_query(update, context):
@@ -127,8 +139,8 @@ def program_query(update, context):
     bot = context.bot
     db = q.Query(settings.DB_FILE)
     args = []
-    global PROGRAM_DAY
-    args.append(PROGRAM_DAY)
+    day = db.get_tmp_day(update.message.chat_id)[0][0]
+    args.append(day)
     args.append(update.message.text)
     text = ''
     for row in db.process_query(args):
@@ -144,9 +156,10 @@ def program_query(update, context):
                      parse_mode='Markdown')
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text='{} tecleja /programa per tornar a consultar un esdeveniment\n'
-                     '{} tecleja /menu per accedir al menú'.format(
+                     text='{} Tecleja /programa per tornar a consultar un esdeveniment\n'
+                     '{} Tecleja /menu per accedir al menú'.format(
                      emoji.carpeta, emoji.date))
+    db.close()
     return ConversationHandler.END
 
 def cartell_menu(update, context):
@@ -154,17 +167,25 @@ def cartell_menu(update, context):
     bot = context.bot
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                             text="Enviant cartell...")
-    bot.send_photo(chat_id=query.message.chat_id,
-                   photo=open('./backend/files/cartell.jpg', 'rb'))
+    try:
+        bot.send_photo(chat_id=query.message.chat_id,
+                       photo=open('./backend/files/cartell.png', 'rb'),
+                       timeout=60)
+    except:
+        bot.send_message(chat_id=query.message.chat_id,
+                         text='Hem tingut problemes de connexió.\n'
+                              'Torna-ho a provar més tard')
     menu(update, context)
 
 def video_menu(update, context):
     query = update.callback_query
     bot = context.bot
-    bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
-                            text="Enviant video...")
-    bot.send_video(chat_id=query.message.chat_id,
-                   video=open('./backend/files/dummy.mp4', 'rb'))
+    bot.send_message(chat_id=query.message.chat_id,
+                     text='Pròximament')
+    #bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
+    #                        text="Enviant video...")
+    #bot.send_video(chat_id=query.message.chat_id,
+    #               video=open('./backend/files/dummy.mp4', 'rb'))
     menu(update, context)
 
 def link_menu(update, context):
@@ -172,7 +193,7 @@ def link_menu(update, context):
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
                      text="{} *INSCRIPCIONS*\n\n"
-                          "{} *Inscripcions del carnestoltes* (a partir del 2 de Febrer)\n"
+                          "{} *Inscripcions del carnestoltes*\n"
                           "www.carnestoltestarrega.cat.\n"
                           "{} *Inscripcions al sopar* (a partir del 3 de Febrer)\n"
                           "https://www.agratickets.cat/".format(
@@ -253,9 +274,12 @@ def main(args):
     finish_handler = CommandHandler('tancar', tancar)
     dp.add_handler(finish_handler)
 
+    # Chat message
+    chat_message_handler = MessageHandler(Filters.text, chat_message)
+    dp.add_handler(chat_message_handler)
     # Incorrect command
-    unknown_handler = MessageHandler(Filters.command, unknown)
-    dp.add_handler(unknown_handler)
+    unknown_command_handler = MessageHandler(Filters.command, unknown_command)
+    dp.add_handler(unknown_command_handler)
 
     # log all errors
     dp.add_error_handler(error)
