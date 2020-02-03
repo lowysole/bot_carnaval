@@ -180,12 +180,10 @@ def cartell_menu(update, context):
 def video_menu(update, context):
     query = update.callback_query
     bot = context.bot
-    bot.send_message(chat_id=query.message.chat_id,
-                     text='Pròximament')
-    #bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
-    #                        text="Enviant video...")
-    #bot.send_video(chat_id=query.message.chat_id,
-    #               video=open('./backend/files/dummy.mp4', 'rb'))
+    bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
+                            text="Enviant video...")
+    bot.send_video(chat_id=query.message.chat_id,
+                   video=open('./backend/files/video.mp4', 'rb'))
     menu(update, context)
 
 def link_menu(update, context):
@@ -193,11 +191,13 @@ def link_menu(update, context):
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
                      text="{} *INSCRIPCIONS*\n\n"
-                          "{} *Inscripcions del carnestoltes*\n"
-                          "www.carnestoltestarrega.cat.\n"
-                          "{} *Inscripcions al sopar* (a partir del 3 de Febrer)\n"
-                          "https://www.agratickets.cat/".format(
-                              emoji.date, emoji.info, emoji.sopar),
+                          "{} INSCRIPCIONS OBERTES AL *SOPAR DEL CARNESTOLTES*, no et quedis sense!\n"
+                          "http://bit.ly/SoparCARNA2020\n\n"
+                          "{} INSCRIPCIONS OBERTES A LA *RUA DE COMPARSES DEL CARNESTOLTES*\n"
+                          "http://bit.ly/RuaComparsesCarnestoltes2020\n\n"
+                          "{} Tota la informació i la resta d'inscripcions\n"
+                          "http://www.carnestoltestarrega.cat/".format(
+                              emoji.date, emoji.sopar, emoji.dancer, emoji.info),
                      parse_mode='Markdown')
     menu(update, context)
 
@@ -209,9 +209,11 @@ def xarxes_menu(update, context):
                           "https://www.instagram.com/carnavaltarrega\n\n"
                           "{} *FACEBOOK*\n"
                           "https://www.facebook.com/CarnestoltesTarrega\n\n"
+                          "{} *TWITTER*\n"
+                          "https://twitter.com/carnavaltarrega\n\n"
                           "{} *WEB*\n"
                           "www.carnestoltestarrega.cat\n\n".format(
-                              emoji.camera, emoji.book, emoji.web),
+                              emoji.camera, emoji.book, emoji.twitter, emoji.web),
                      parse_mode='Markdown')
     menu(update, context)
 
