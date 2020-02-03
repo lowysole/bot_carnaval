@@ -14,10 +14,11 @@ import logging
 import argparse
 
 
-from telegram import (Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup,
-                      InlineKeyboardButton)
+from telegram import (Bot, ReplyKeyboardMarkup, ReplyKeyboardRemove,
+                      InlineKeyboardMarkup,InlineKeyboardButton)
 
-from telegram.ext import (Updater, CommandHandler, MessageHandler, Handler, Filters,
+from telegram.ext import (Updater, CommandHandler,
+                          MessageHandler, Handler, Filters,
                           ConversationHandler, CallbackQueryHandler)
 
 from backend import settings, easter
@@ -26,8 +27,9 @@ from backend import emojis as emoji
 from backend.database import query as q
 
 # Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,8 @@ def inici(update, context):
     user = update.message.chat.username
     logger.info("User {} entering to the BOT".format(user))
     update.message.reply_text(
-        '{} Benvinguts al BOT de Sa Majestat, Reina del Carnestoltes de Tàrrega! {} \n\n'
+        '{} Benvinguts al BOT de Sa Majestat,'
+        'Reina del Carnestoltes de Tàrrega! {} \n\n'
         'Aquest BOT et donarà tota la informació necessària per estar '
         'informat de tot el que passa a Tàrrega.\n\n'
         '{} Tecleja /menu per accedir al menú sempre que vulguis\n'
@@ -113,15 +116,18 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="{} Tecleja /programa per consultar per dia i hora els "
-                          "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
+                     text="{} Tecleja /programa per consultar"
+                     "per dia i hora els "
+                     "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
                           emoji.date))
 
 def program_day(update, context):
-    reply_keyboard = [['Dijous 20', 'Divendres 21'], ['Dissabte 22', 'Diumenge 23']]
+    reply_keyboard = [['Dijous 20', 'Divendres 21'],
+                      ['Dissabte 22', 'Diumenge 23']]
     update.message.reply_text(
         '{} Quin dia de la setmana vols consultar?'.format(emoji.lupa),
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                         one_time_keyboard=True))
     return 0
 
 def program_hour(update,context):
@@ -150,13 +156,15 @@ def program_query(update, context):
                 row[0], emoji.date, row[1], row[2], emoji.ubi, row[3])
         text = text + template
     if text == '':
-        text = "{} No s'ha trobat cap esdeveniment amb aquest horari.".format(emoji.creu)
+        text = "{} No s'ha trobat cap esdeveniment' \
+        'amb aquest horari.".format(emoji.creu)
     bot.send_message(chat_id=update.message.chat_id,
                      text=text,
                      parse_mode='Markdown')
 
     bot.send_message(chat_id=update.message.chat_id,
-                     text='{} Tecleja /programa per tornar a consultar un esdeveniment\n'
+                     text='{} Tecleja /programa per tornar'
+                     'a consultar un esdeveniment\n'
                      '{} Tecleja /menu per accedir al menú'.format(
                      emoji.carpeta, emoji.date))
     db.close()
@@ -191,13 +199,16 @@ def link_menu(update, context):
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
                      text="{} *INSCRIPCIONS*\n\n"
-                          "{} INSCRIPCIONS OBERTES AL *SOPAR DEL CARNESTOLTES*, no et quedis sense!\n"
+                          "{} INSCRIPCIONS OBERTES AL "
+                          "*SOPAR DEL CARNESTOLTES*, no et quedis sense!\n"
                           "http://bit.ly/SoparCARNA2020\n\n"
-                          "{} INSCRIPCIONS OBERTES A LA *RUA DE COMPARSES DEL CARNESTOLTES*\n"
+                          "{} INSCRIPCIONS OBERTES A LA "
+                          "*RUA DE COMPARSES DEL CARNESTOLTES*\n"
                           "http://bit.ly/RuaComparsesCarnestoltes2020\n\n"
                           "{} Tota la informació i la resta d'inscripcions\n"
                           "http://www.carnestoltestarrega.cat/".format(
-                              emoji.date, emoji.sopar, emoji.dancer, emoji.info),
+                              emoji.date, emoji.sopar,
+                              emoji.dancer, emoji.info),
                      parse_mode='Markdown')
     menu(update, context)
 
@@ -213,9 +224,19 @@ def xarxes_menu(update, context):
                           "https://twitter.com/carnavaltarrega\n\n"
                           "{} *WEB*\n"
                           "www.carnestoltestarrega.cat\n\n".format(
-                              emoji.camera, emoji.book, emoji.twitter, emoji.web),
+                              emoji.camera, emoji.book,
+                              emoji.twitter, emoji.web),
                      parse_mode='Markdown')
     menu(update, context)
+
+def answer_menu(update, context):
+    query = update.callback_query
+    bot = context.bot
+    bot.send_message(chat_id=query.message.chat_id,
+                     text='Holis, com estem?\n'
+                     'He estat programada per respondre les teves '
+                     'inquietuds més Targarines. Així que aifina bé '
+                     'les teves preguntes!')
 
 # Messages
 def main_menu_message():
@@ -223,16 +244,25 @@ def main_menu_message():
 
 # Keyboards
 def main_menu_keyboard():
-    main_menu = [[InlineKeyboardButton('Cartell', callback_data='cartell'),
-                  InlineKeyboardButton('Programa Físic', callback_data='programa_f')],
-                 [InlineKeyboardButton('Video', callback_data='video'),
-                  InlineKeyboardButton('Programa Online', callback_data='programa_o')],
-                 [InlineKeyboardButton('Inscripcions', callback_data='link'),
-                  InlineKeyboardButton('Xarxes Socials', callback_data='xarxes')]]
+    main_menu = [[InlineKeyboardButton('Cartell',
+                                       callback_data='cartell'),
+                  InlineKeyboardButton('Programa Físic',
+                                       callback_data='programa_f')],
+                 [InlineKeyboardButton('Video',
+                                       callback_data='video'),
+                  InlineKeyboardButton('Programa Online',
+                                       callback_data='programa_o')],
+                 [InlineKeyboardButton('Inscripcions',
+                                       callback_data='link'),
+                  InlineKeyboardButton('Xarxes Socials',
+                                       callback_data='xarxes')],
+                 [InlineKeyboardButton('Conversa amb mi',
+                                       callback_data='answer')]]
     return InlineKeyboardMarkup(main_menu, one_time_keyboard=True)
 
 def back_menu_keyboard():
-    back_menu = [[InlineKeyboardButton('Endarrere', callback_data='main_menu')]]
+    back_menu = [[InlineKeyboardButton('Endarrere',
+                                       callback_data='main_menu')]]
     return InlineKeyboardMarkup(back_menu)
 
 def main(args):
@@ -260,6 +290,7 @@ def main(args):
     dp.add_handler(CallbackQueryHandler(video_menu, pattern='video'))
     dp.add_handler(CallbackQueryHandler(link_menu, pattern='link'))
     dp.add_handler(CallbackQueryHandler(xarxes_menu, pattern='xarxes'))
+    dp.add_handler(CallbackQueryHandler(answer_menu, pattern='answer'))
 
     # Program Handler
     program_handler = ConversationHandler(
