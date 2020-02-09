@@ -1,3 +1,6 @@
+import re
+from random import randint
+
 ROSA = ['maria',
         'rosamari',
         'perelló',
@@ -14,12 +17,15 @@ PDCAT = ['pdcat',
          'convergencia',
          'convergència']
 
-ANIMAL = ['animal farm',
-          'animal',
+ANIMAL = ['animal',
           'farm'
           ]
 
-FOTOGRAF = ['']
+FOTOGRAF = ['fotograf',
+            'fotògraf',
+            'raul',
+            'raül',
+            'palacios']
 
 CS = ['ciutadans',
       'ciutadants',
@@ -27,6 +33,8 @@ CS = ['ciutadans',
       'cs',
       "c’s"
       ]
+
+CUP = ['cup']
 
 VOX = ['fatxa',
        'fatcha',
@@ -39,25 +47,49 @@ ERC = ['esquerra',
 
 HUMOR = ['humor',
          'monolegs',
-         'monòlegs'
+         'monòlegs',
+         'meme',
+         'memefest'
          ]
 
 AGRAT = ['agrat',
          ]
 
+SILVERI = ['silveri',
+           'caro',
+           'psc']
+
+LOWY = ['lowy',
+        'llorenç']
+
+GENT = ['jaume',
+        'vilalta',
+        'lluis',
+        'lluís',
+        'nadal',
+        'ramon']
+
+REINA = ['rei',
+         'reina']
+
+FOLGUERA = ['folgui',
+            'folguera']
+
 def message_answer(text):
-    text = text.replace("'", " ").split(" ")
-    if any(x in text for x in ROSA):
-        pass
-    elif any(x in text for x in ANIMAL):
+    text = re.findall(r"[\w']+", text)
+    if any(x in text for x in ANIMAL):
         return ['text',
                 "Has estàs bloquejat del bot.\n" \
                 "Demana perdó si vols tornar a parlar amb mi."]
-    # Política
+    elif any(x in text for x in AGRAT):
+        return ['text',
+                "Encara no ets soci de l’agrat? doncs aprofita ara," \
+                "que d’aquí dos anys potser..."]
+    elif any(x in text for x in ROSA):
+        pass
     elif any(x in text for x in VOX):
-        return ['photo',
-                './backend/files/abascal.jpg',
-                'Santiago Abascal quiere limpiar España de Pokémons']
+        return ['text',
+                'De debò? Ni aigua.']
     elif any(x in text for x in CS):
         return ['text',
                 'https://play.google.com/store/apps/details?id=es.decesia&hl=en']
@@ -72,11 +104,45 @@ def message_answer(text):
     elif any(x in text for x in HUMOR):
         return ["photo",
                 './backend/files/postu.jpg', '']
-    elif any(x in text for x in AGRAT):
+    elif any(x in text for x in SILVERI):
         return ['text',
-                "Encara no ets soci de l’Agrat? Doncs aprofita ara," \
-                "que d’aquí dos anys potser..."]
+                'https://bit.ly/31Gs6px']
+    elif any(x in text for x in CUP):
+        return ['text',
+                "Pobres, estant patint una època amb alguns 'batches'"]
+    elif any(x in text for x in GENT):
+        return ['text',
+                'Si ets tu, et pensaves que et dedicaríem un lloc aquí? ' \
+                'Si no ets tu, bon intent.']
+    elif any(x in text for x in LOWY):
+        return ['text',
+                'És el creador de tot això. @lowysole']
+    elif any(x in text for x in REINA):
+        return ['text',
+                'No flipes ni res.']
+    elif any(x in text for x in FOTOGRAF):
+        return ['audio',
+                './backend/files/fotograf.mp3']
+    elif any(x in text for x in FOLGUERA):
+        return ['text',
+                'Ja li hem donat massa protagonsime. Millor parar '
+                'sinó es creix massa.']
     else:
-        return ['text',
-                "No tinc respotes a aquesta pregunta...\n"
-                "Prova d'utilitzar altres paraules clau.\n"]
+        num = randint(1,20)
+        if num == 1:
+            return['text',
+                   "No tinc respostes a aquesta pregunta però " \
+                   "potser et poden interessar els horaris de " \
+                   "la Tagiatella:\n" \
+                   "Cada dia de 13 a 16 i de 20:30 a 00"]
+        elif num == 2:
+            return ['text',
+                    'Enhorabona! Has sigut el missatge 1000! ' \
+                    'Escriu reina si vols saber qui és.']
+        elif num in (3,4,5):
+            return ['text',
+                    'Sigue intentando...']
+        else:
+            return ['text',
+                    "No tinc respotes a aquesta pregunta...\n"
+                    "Prova d'utilitzar altres paraules clau.\n"]

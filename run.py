@@ -35,8 +35,13 @@ logger = logging.getLogger(__name__)
 
 
 def inici(update, context):
-    user = update.message.chat.username
-    logger.info("User {} entering to the BOT".format(user))
+    user = update.message.chat
+    logger.info("User {}: {} {} entering to the BOT".format(
+        user.username, user.first_name, user.last_name))
+    full_name = str(user.first_name) + ' ' + str(user.last_name)
+    db = q.Query(settings.DB_FILE)
+    db.get_or_create_user(user.username, full_name)
+
     update.message.reply_text(
         '{} Benvinguts al BOT de Sa Majestat,'
         'Reina del Carnestoltes de Tàrrega! {} \n\n'
@@ -122,8 +127,8 @@ def programa_online(update, context):
                           emoji.date))
 
 def program_day(update, context):
-    reply_keyboard = [['Dijous 20', 'Divendres 21'],
-                      ['Dissabte 22', 'Diumenge 23']]
+    reply_keyboard = [['Dijous 20'],['Divendres 21'],
+                      ['Dissabte 22'],['Diumenge 23']]
     update.message.reply_text(
         '{} Quin dia de la setmana vols consultar?'.format(emoji.lupa),
         reply_markup=ReplyKeyboardMarkup(reply_keyboard,
@@ -131,12 +136,17 @@ def program_day(update, context):
     return 0
 
 def program_hour(update,context):
+    reply_keyboard = [['0', '1', '2', '3' ,'4' ,'5'],
+                      ['6', '7', '8', '9' ,'10' ,'11'],
+                      ['12', '13', '14', '15' ,'16' ,'17'],
+                      ['18', '19', '20', '21' ,'22' ,'23']]
     db = q.Query(settings.DB_FILE)
     db.add_tmp_day(update.message.chat_id,
                    update.message.text)
-    update.message.reply_text("Escriu l'hora que vols consultar\n"
-                              "Exemple: 17 (5 de la tarda)",
-                              reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text(
+        "{} Quina hora vols consultar?".format(emoji.lupa),
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=True))
     db.close()
     return 1
 
@@ -156,8 +166,8 @@ def program_query(update, context):
                 row[0], emoji.date, row[1], row[2], emoji.ubi, row[3])
         text = text + template
     if text == '':
-        text = "{} No s'ha trobat cap esdeveniment' \
-        'amb aquest horari.".format(emoji.creu)
+        text = "{} No s'ha trobat cap esdeveniment" \
+        "amb aquest horari.".format(emoji.creu)
     bot.send_message(chat_id=update.message.chat_id,
                      text=text,
                      parse_mode='Markdown')
