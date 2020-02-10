@@ -80,9 +80,10 @@ FOLGUERA = ['folgui',
 
 INTERVENTORA = ['interventora']
 
-IVONE = ['ivone',
-         'rajoles',
-         '']
+IVONNE = ['ivonne',
+         'ivone',
+         'efectivitat',
+         'rajoles']
 
 def message_answer(text):
     db = q.Query(DB_FILE)
@@ -157,6 +158,10 @@ def message_answer(text):
         db.get_or_create_msg('interventora')
         return ['photo',
                 './backend/files/interventora.jpeg', '']
+    elif any(x in text for x in IVONNE):
+        db.get_or_create_msg('ivonne')
+        return ['photo',
+                './backend/files/ivonne.jpeg', '']
     else:
         num = randint(1,20)
         if num == 1 and num == 2:
