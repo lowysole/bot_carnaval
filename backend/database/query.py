@@ -14,6 +14,12 @@ USERS = """CREATE TABLE IF NOT EXISTS users(
         count int
         );"""
 
+MSG = """CREATE TABLE IF NOT EXISTS messages(
+        id INTEGER NOT NULL PRIMARY KEY,
+        msg text,
+        count int
+        );"""
+
 class Query(DBBase):
 
     def __init__(self, db_file):
@@ -56,6 +62,17 @@ class Query(DBBase):
         except:
             count = 1
             self._add_user(user, name, count)
+        self.conn.commit()
+
+    def get_or_create_msg(self, msg):
+        query = self._get_msg_count(msg)
+        try:
+            _id = query[0][0]
+            count = query[0][1] + 1
+            self._update_msg(_id, count)
+        except:
+            count = 1
+            self._add_msg(msg, count)
         self.conn.commit()
 
     def _extract_info(self, day, hour):
@@ -137,7 +154,34 @@ class Query(DBBase):
         cur = self.conn.cursor()
         cur.execute(query, [count, _id])
 
+    def _get_msg_count(self, msg):
+        query = """
+            SELECT id, count
+            FROM messages
+            WHERE msg = ?
+            LIMIT 1;
+            """
+        return self._get_sql(query, data=[msg])
+
+    def _add_msg(self, msg, count):
+        query = """
+        INSERT INTO messages (msg, count)
+        VALUES (?, ?);
+        """
+        cur = self.conn.cursor()
+        cur.execute(query, [msg, count])
+
+    def _update_msg(self, _id, count):
+        query = """
+        UPDATE messages
+        SET count = ?
+        WHERE id = ?;
+        """
+        cur = self.conn.cursor()
+        cur.execute(query, [count, _id])
+
     def _create_tables(self):
         self._execute_sql(DAY_TMP)
         self._execute_sql(USERS)
+        self._execute_sql(MSG)
         self.conn.commit()

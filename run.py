@@ -93,10 +93,13 @@ def chat_message(update, context):
     if answer_text[0] == 'text':
         bot.send_message(chat_id=update.message.chat_id,
                          text=answer_text[1])
-    if answer_text[0] == 'photo':
+    elif answer_text[0] == 'photo':
         bot.send_photo(chat_id=update.message.chat_id,
                        photo=open(answer_text[1], 'rb'),
                        caption=answer_text[2])
+    elif answer_text[0] == 'audio':
+        bot.send_audio(chat_id=update.message.chat_id,
+                       audio=open(answer_text[1], 'rb'))
 
 # Menus
 def main_menu(update, context):
