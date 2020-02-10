@@ -124,7 +124,7 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="{} Tecleja /programa per consultar"
+                     text="{} Tecleja /programa per consultar "
                      "per dia i hora els "
                      "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
                           emoji.date))
