@@ -85,6 +85,14 @@ IVONNE = ['ivonne',
          'efectivitat',
          'rajoles']
 
+SEGRE = ['news',
+         'noticia',
+         'notícia',
+         'segre',
+         'diari',
+         'premsa',
+         'fake']
+
 def message_answer(text):
     db = q.Query(DB_FILE)
     text = re.findall(r"[\w']+", text)
@@ -162,6 +170,10 @@ def message_answer(text):
         db.get_or_create_msg('ivonne')
         return ['photo',
                 './backend/files/ivonne.jpeg', '']
+    elif any(x in text for x in SEGRE):
+        db.get_or_create_msg('segre')
+        return ['photo',
+                './backend/files/segre.jpeg', '']
     else:
         num = randint(1,20)
         if num == 1 and num == 2:
