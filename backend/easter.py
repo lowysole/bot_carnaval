@@ -78,6 +78,12 @@ REINA = ['rei',
 FOLGUERA = ['folgui',
             'folguera']
 
+INTERVENTORA = ['interventora']
+
+IVONE = ['ivone',
+         'rajoles',
+         '']
+
 def message_answer(text):
     db = q.Query(DB_FILE)
     text = re.findall(r"[\w']+", text)
@@ -147,6 +153,10 @@ def message_answer(text):
         return ['text',
                 'Ja li hem donat massa protagonsime. Millor parar '
                 'sinó es creix massa.']
+    elif any(x in text for x in INTERVENTORA):
+        db.get_or_create_msg('interventora')
+        return ['photo',
+                './backend/files/interventora.jpeg', '']
     else:
         num = randint(1,20)
         if num == 1 and num == 2:
