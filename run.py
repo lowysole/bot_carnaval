@@ -124,7 +124,7 @@ def programa_online(update, context):
     query= update.callback_query
     bot = context.bot
     bot.send_message(chat_id=query.message.chat_id,
-                     text="{} Tecleja /programa per consultar"
+                     text="{} Tecleja /programa per consultar "
                      "per dia i hora els "
                      "esdeveniments propers d'aquest Carnestoltes.\n\n".format(
                           emoji.date))
@@ -202,7 +202,7 @@ def video_menu(update, context):
     query = update.callback_query
     bot = context.bot
     bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
-                            text="Enviant video...")
+                            text="Enviant vídeo...")
     bot.send_video(chat_id=query.message.chat_id,
                    video=open('./backend/files/video.mp4', 'rb'))
     menu(update, context)
@@ -261,7 +261,7 @@ def main_menu_keyboard():
                                        callback_data='cartell'),
                   InlineKeyboardButton('Programa Físic',
                                        callback_data='programa_f')],
-                 [InlineKeyboardButton('Video',
+                 [InlineKeyboardButton('Vídeo',
                                        callback_data='video'),
                   InlineKeyboardButton('Programa Online',
                                        callback_data='programa_o')],
